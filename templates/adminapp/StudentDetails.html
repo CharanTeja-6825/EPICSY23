@@ -1,0 +1,110 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Student Information
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+ </head>
+ <body class="bg-green-50">
+ {% include 'navbar/AdminNavBar.html' %}
+  <div class="container mx-auto p-4">
+   <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex items-center mb-4">
+     <input class="border border-gray-300 rounded-l-lg p-2 flex-grow" placeholder="Enter Roll Number" type="text"/>
+     <button class="bg-red-600 text-white p-2 rounded-r-lg">
+      <i class="fas fa-search">
+      </i>
+      Search
+     </button>
+    </div>
+    <div class="bg-red-100 text-red-600 p-2 rounded mb-4">
+     <i class="fas fa-exclamation-circle">
+     </i>
+     Student not found
+    </div>
+    <div class="mb-4">
+     <h2 class="text-lg font-bold">
+      R Charan Teja
+     </h2>
+     <p>
+      Registration Number: 2300031964
+     </p>
+     <p>
+      Course &amp; Branch: B.Tech - Computer Science Engineering
+     </p>
+     <p>
+      No of Courses Registered: 65
+     </p>
+     <p>
+      No of Courses Detained: 5
+     </p>
+    </div>
+    <table class="w-full text-left border-collapse">
+     <thead>
+      <tr>
+       <th class="bg-red-600 text-white p-2">
+        Course Code
+       </th>
+       <th class="bg-red-600 text-white p-2">
+        Grade
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr class="bg-gray-50">
+       <td class="p-2">
+        CSE301
+       </td>
+       <td class="p-2">
+        A
+       </td>
+      </tr>
+      <tr class="bg-white">
+       <td class="p-2">
+        CSE302
+       </td>
+       <td class="p-2">
+        A+
+       </td>
+      </tr>
+      <tr class="bg-gray-50">
+       <td class="p-2">
+        CSE303
+       </td>
+       <td class="p-2">
+        B+
+       </td>
+      </tr>
+      <tr class="bg-white">
+       <td class="p-2">
+        CSE304
+       </td>
+       <td class="p-2">
+        A
+       </td>
+      </tr>
+      <tr class="bg-gray-50">
+       <td class="p-2">
+        CSE305
+       </td>
+       <td class="p-2">
+        A+
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="mt-4 text-right">
+<!--     <button class="bg-white border border-red-600 text-red-600 p-2 rounded-lg flex items-center">-->
+<!--      <i class="fas fa-download mr-2">-->
+<!--      </i>-->
+<!--      Download PDF-->
+<!--     </button>-->
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

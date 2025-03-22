@@ -13,18 +13,7 @@
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
-    <header class="w-full bg-red-600 shadow">
-        <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between py-4 px-6">
-            <div class="flex items-center mb-4 sm:mb-0">
-                <div class="text-white px-4 py-2 rounded">
-                    <span class="font-bold">KL University</span>
-                </div>
-            </div>
-            <div class="w-full sm:w-auto text-center">
-                <h1 class="text-xl font-semibold text-white">Student Result and Exit Report System</h1>
-            </div>
-        </div>
-    </header>
+    {% include 'navbar/AdminNavBar.html' %}
 
     <main class="flex-grow flex flex-col items-center justify-center px-4 w-full">
         <div class="bg-white rounded-lg p-8 max-w-md w-full">
