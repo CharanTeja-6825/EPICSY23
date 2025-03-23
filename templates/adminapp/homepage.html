@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,24 +17,32 @@
     {% include 'navbar/AdminNavBar.html' %}
 
     <main class="flex-grow flex flex-col items-center justify-center px-4 w-full">
-    <div class="bg-white rounded-lg p-8 max-w-md w-full">
-        <h2 class="text-xl font-semibold mb-4">Upload Student Results CSV File</h2>
-        <form id="uploadForm" class="space-y-4" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-green-50">
-                <i class="fas fa-cloud-upload-alt text-red-500 text-4xl mb-4"></i>
-                <p class="mb-2">Drag and drop your CSV file here</p>
-                <p class="mb-2">or</p>
-                <input type="file" id="fileInput" class="hidden" accept=".csv">
-                <label for="fileInput" class="bg-red-600 text-white px-4 py-2 rounded cursor-pointer">Browse Files</label>
-            </div>
-            <p class="text-sm text-gray-500">Accepted file format: .CSV only</p>
-            <div id="uploadStatus" class="mt-4"></div>
-            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded w-full mt-4">Upload File</button>
-        </form>
-    </div>
-</main>
-
+        <div class="bg-white rounded-lg p-8 max-w-md w-full">
+            <h2 class="text-xl font-semibold mb-4">Upload Student Results CSV File</h2>
+            <form id="uploadForm" method="post" enctype="multipart/form-data" class="space-y-4">
+                {% csrf_token %}
+                <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-green-50">
+                    <i class="fas fa-cloud-upload-alt text-red-500 text-4xl mb-4"></i>
+                    <p class="mb-2">Drag and drop your CSV file here</p>
+                    <p class="mb-2">or</p>
+                    <input type="file" id="fileInput" name="csv_file" class="hidden" accept=".csv">
+                    <label for="fileInput" class="bg-red-600 text-white px-4 py-2 rounded cursor-pointer">Browse Files</label>
+                </div>
+                <p class="text-sm text-gray-500">Accepted file format: .CSV only</p>
+                <div id="uploadStatus" class="mt-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="bg-{{ message.tags }}-100 text-{{ message.tags }}-700 px-4 py-2 rounded mb-2 flex items-center">
+                                <i class="fas fa-{% if message.tags == 'success' %}check{% else %}exclamation{% endif %}-circle mr-2"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded w-full mt-4">Upload File</button>
+            </form>
+        </div>
+    </main>
 
     <footer class="w-full bg-white py-4">
         <div class="container mx-auto text-center text-gray-500 text-sm">
@@ -41,168 +50,68 @@
         </div>
     </footer>
 
-<!--    <script>-->
-<!--        const dropZone = document.getElementById('dropZone');-->
-<!--        const fileInput = document.getElementById('fileInput');-->
-<!--        const uploadStatus = document.getElementById('uploadStatus');-->
-<!--        let droppedFiles = null;-->
-
-<!--        dropZone.addEventListener('dragover', (event) => {-->
-<!--            event.preventDefault();-->
-<!--            dropZone.classList.add('drag-over');-->
-<!--        });-->
-
-<!--        dropZone.addEventListener('dragleave', () => {-->
-<!--            dropZone.classList.remove('drag-over');-->
-<!--        });-->
-
-<!--        dropZone.addEventListener('drop', (event) => {-->
-<!--            event.preventDefault();-->
-<!--            dropZone.classList.remove('drag-over');-->
-<!--            droppedFiles = event.dataTransfer.files;-->
-<!--            handleFiles(droppedFiles);-->
-<!--        });-->
-
-<!--        fileInput.addEventListener('change', (event) => {-->
-<!--            droppedFiles = event.target.files;-->
-<!--            handleFiles(droppedFiles);-->
-<!--        });-->
-
-<!--        function handleFiles(files) {-->
-<!--            uploadStatus.innerHTML = '';-->
-
-<!--            if (files.length > 0) {-->
-<!--                const file = files[0];-->
-<!--                const fileName = file.name;-->
-
-<!--                if (file.type !== 'text/csv') {-->
-<!--                    uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center"><i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';-->
-<!--                    return;-->
-<!--                }-->
-
-<!--                const fileStatus = document.createElement('div');-->
-<!--                fileStatus.className = 'bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center justify-between';-->
-<!--                fileStatus.innerHTML = `-->
-<!--                    <span>${fileName}</span>-->
-<!--                    <button type="button" class="text-red-500 ml-4" onclick="removeFile()">-->
-<!--                        <i class="fas fa-times"></i>-->
-<!--                    </button>-->
-<!--                `;-->
-<!--                uploadStatus.appendChild(fileStatus);-->
-<!--            }-->
-<!--        }-->
-
-<!--        document.getElementById('uploadForm').addEventListener('submit', function(event) {-->
-<!--            event.preventDefault();-->
-
-<!--            if (!droppedFiles || droppedFiles.length === 0) {-->
-<!--                uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center"><i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';-->
-<!--                return;-->
-<!--            }-->
-
-<!--            const file = droppedFiles[0];-->
-<!--            if (file.type !== 'text/csv') {-->
-<!--                uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center"><i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';-->
-<!--                return;-->
-<!--            }-->
-
-<!--            // Simulate file upload success-->
-<!--            uploadStatus.innerHTML = '<div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center"><i class="fas fa-check-circle mr-2"></i><span>File uploaded successfully!</span></div>';-->
-<!--        });-->
-
-<!--        function removeFile() {-->
-<!--            fileInput.value = '';-->
-<!--            droppedFiles = null;-->
-<!--            uploadStatus.innerHTML = '';-->
-<!--        }-->
-<!--    </script>-->
     <script>
-        let droppedFiles = null;
-    const dropZone = document.getElementById("dropZone");
-    const fileInput = document.getElementById("fileInput");
-    const uploadStatus = document.getElementById("uploadStatus");
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadStatus = document.getElementById('uploadStatus');
 
-    dropZone.addEventListener("dragover", (event) => {
-        event.preventDefault();
-        dropZone.classList.add("drag-over");
-    });
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
 
-    dropZone.addEventListener("dragleave", () => {
-        dropZone.classList.remove("drag-over");
-    });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
 
-    dropZone.addEventListener("drop", (event) => {
-        event.preventDefault();
-        dropZone.classList.remove("drag-over");
-        droppedFiles = event.dataTransfer.files;
-        handleFiles(droppedFiles);
-    });
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.classList.remove('drag-over');
 
-    fileInput.addEventListener("change", (event) => {
-        droppedFiles = event.target.files;
-        handleFiles(droppedFiles);
-    });
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
 
-    function handleFiles(files) {
-        uploadStatus.innerHTML = "";
-        if (files.length > 0) {
-            const file = files[0];
-            if (file.type !== "text/csv") {
-                uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center">' +
-                                         '<i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';
+        fileInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            uploadStatus.innerHTML = '';
+
+            if (!file.name.endsWith('.csv')) {
+                uploadStatus.innerHTML = `<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Please upload a valid CSV file</span>
+                </div>`;
+                fileInput.value = ""; // Reset file input
                 return;
             }
 
-            const fileStatus = document.createElement("div");
-            fileStatus.className = "bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center justify-between";
-            fileStatus.innerHTML = `<span>${file.name}</span>
-                <button type="button" class="text-red-500 ml-4" onclick="removeFile()">
-                    <i class="fas fa-times"></i>
-                </button>`;
-            uploadStatus.appendChild(fileStatus);
-        }
-    }
+            // Assign dropped file to file input so Django recognizes it
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
 
-    function removeFile() {
-        fileInput.value = "";
-        droppedFiles = null;
-        uploadStatus.innerHTML = "";
-    }
-
-    document.getElementById("uploadForm").addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        let file = droppedFiles ? droppedFiles[0] : fileInput.files[0];
-
-        if (!file || file.type !== "text/csv") {
-            uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center">' +
-                                     '<i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';
-            return;
+            uploadStatus.innerHTML = `
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center justify-between">
+                    <span>${file.name}</span>
+                    <button type="button" class="text-red-500 ml-4" onclick="removeFile()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
         }
 
-        let formData = new FormData();
-        formData.append("csv_file", file);
-        formData.append("csrfmiddlewaretoken", document.querySelector("[name=csrfmiddlewaretoken]").value);
-
-        fetch("{% url 'upload_csv' %}", {
-            method: "POST",
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success") {
-                uploadStatus.innerHTML = '<div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center">' +
-                                         '<i class="fas fa-check-circle mr-2"></i><span>' + data.message + '</span></div>';
-            } else {
-                uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center">' +
-                                         '<i class="fas fa-exclamation-circle mr-2"></i><span>' + data.message + '</span></div>';
-            }
-        })
-        .catch(error => {
-            uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center">' +
-                                     '<i class="fas fa-exclamation-circle mr-2"></i><span>Error uploading file</span></div>';
-        });
-    });
-</script>
+        function removeFile() {
+            fileInput.value = '';
+            uploadStatus.innerHTML = '';
+        }
+    </script>
 </body>
 </html>
