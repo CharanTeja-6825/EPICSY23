@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -53,7 +54,6 @@
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
         const uploadStatus = document.getElementById('uploadStatus');
-        let droppedFiles = null;
 
         dropZone.addEventListener('dragover', (event) => {
             event.preventDefault();
@@ -67,49 +67,49 @@
         dropZone.addEventListener('drop', (event) => {
             event.preventDefault();
             dropZone.classList.remove('drag-over');
-            droppedFiles = event.dataTransfer.files;
-            handleFiles(droppedFiles);
+
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
         });
 
         fileInput.addEventListener('change', (event) => {
-            droppedFiles = event.target.files;
-            handleFiles(droppedFiles);
+            const files = event.target.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
         });
 
-        function handleFiles(files) {
+        function handleFile(file) {
             uploadStatus.innerHTML = '';
 
-            if (files.length > 0) {
-                const file = files[0];
-                const fileName = file.name;
+            if (!file.name.endsWith('.csv')) {
+                uploadStatus.innerHTML = `<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Please upload a valid CSV file</span>
+                </div>`;
+                fileInput.value = ""; // Reset file input
+                return;
+            }
 
-                if (file.type !== 'text/csv') {
-                    uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center"><i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';
-                    return;
-                }
+            // Assign dropped file to file input so Django recognizes it
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
 
-                const fileStatus = document.createElement('div');
-                fileStatus.className = 'bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center justify-between';
-                fileStatus.innerHTML = `
-                    <span>${fileName}</span>
+            uploadStatus.innerHTML = `
+                <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-2 flex items-center justify-between">
+                    <span>${file.name}</span>
                     <button type="button" class="text-red-500 ml-4" onclick="removeFile()">
                         <i class="fas fa-times"></i>
                     </button>
-                `;
-                uploadStatus.appendChild(fileStatus);
-            }
+                </div>
+            `;
         }
-
-        document.getElementById('uploadForm').addEventListener('submit', function(event) {
-            if (!droppedFiles || droppedFiles.length === 0) {
-                event.preventDefault();
-                uploadStatus.innerHTML = '<div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-2 flex items-center"><i class="fas fa-exclamation-circle mr-2"></i><span>Please upload a valid CSV file</span></div>';
-            }
-        });
 
         function removeFile() {
             fileInput.value = '';
-            droppedFiles = null;
             uploadStatus.innerHTML = '';
         }
     </script>
