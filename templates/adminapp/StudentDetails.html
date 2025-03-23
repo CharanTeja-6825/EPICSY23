@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -7,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
 </head>
 <body class="bg-green-50">
-{% include 'navbar/AdminNavBar.html' %}
+    {% include 'navbar/AdminNavBar.html' %}
 
     <div class="container mx-auto p-4">
         <div class="bg-white p-6 rounded-lg shadow-md">
@@ -22,11 +23,11 @@
             </div>
             <div id="studentInfo" class="hidden">
                 <div class="mb-4">
-                    <h2 class="text-lg font-bold">R Charan Teja</h2>
-                    <p>Registration Number: 2300031964</p>
-                    <p>Course &amp; Branch: B.Tech - Computer Science Engineering</p>
-                    <p>No of Courses Registered: 65</p>
-                    <p>No of Courses Detained: 5</p>
+                    <h2 id="studentName" class="text-lg font-bold"></h2>
+                    <p id="studentRegNumber"></p>
+                    <p id="studentCourseBranch"></p>
+                    <p id="studentRegisteredCourses"></p>
+                    <p id="studentDetainedCourses"></p>
                 </div>
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -35,58 +36,72 @@
                             <th class="bg-red-600 text-white p-2">Grade</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="bg-gray-50">
-                            <td class="p-2">CSE301</td>
-                            <td class="p-2">A</td>
-                        </tr>
-                        <tr class="bg-white">
-                            <td class="p-2">CSE302</td>
-                            <td class="p-2">A+</td>
-                        </tr>
-                        <tr class="bg-gray-50">
-                            <td class="p-2">CSE303</td>
-                            <td class="p-2">B+</td>
-                        </tr>
-                        <tr class="bg-white">
-                            <td class="p-2">CSE304</td>
-                            <td class="p-2">A</td>
-                        </tr>
-                        <tr class="bg-gray-50">
-                            <td class="p-2">CSE305</td>
-                            <td class="p-2">A+</td>
-                        </tr>
+                    <tbody id="studentGradesTable">
+                        <!-- Course data will be inserted here -->
                     </tbody>
                 </table>
                 <div class="mt-4 text-right">
-                    <button class="bg-white border border-red-600 text-red-600 p-2 rounded-lg flex items-center">
+                    <button class="bg-white border border-red-600 text-red-600 p-2 rounded-lg flex items-center" onclick="downloadPDF()">
                         <i class="fas fa-download mr-2"></i> Download PDF
                     </button>
                 </div>
             </div>
         </div>
     </div>
+
     <script>
         function handleKeyPress(event) {
-        if (event.key === "Enter") {
-           searchStudent();
+            if (event.key === "Enter") {
+                searchStudent();
+            }
         }
-    }
+
         function searchStudent() {
             const rollNumber = document.getElementById('rollNumberInput').value;
             const errorMessage = document.getElementById('errorMessage');
             const studentInfo = document.getElementById('studentInfo');
+            const studentName = document.getElementById('studentName');
+            const studentRegNumber = document.getElementById('studentRegNumber');
+            const studentCourseBranch = document.getElementById('studentCourseBranch');
+            const studentRegisteredCourses = document.getElementById('studentRegisteredCourses');
+            const studentDetainedCourses = document.getElementById('studentDetainedCourses');
+            const studentGradesTable = document.getElementById('studentGradesTable');
 
-            // Clear previous results
+            // Clear previous data
             errorMessage.classList.add('hidden');
             studentInfo.classList.add('hidden');
+            studentGradesTable.innerHTML = '';
 
-            // Simulate a search (replace this with actual search logic)
-            if (rollNumber === '2300031964') {
-                studentInfo.classList.remove('hidden');
-            } else {
-                errorMessage.classList.remove('hidden');
-            }
+            // Fetch student details from the server
+            fetch(`/get_student_info/${rollNumber}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        errorMessage.classList.remove('hidden');
+                    } else {
+                        studentInfo.classList.remove('hidden');
+                        studentName.textContent = data.name;
+                        studentRegNumber.textContent = `Registration Number: ${data.reg_number}`;
+                        studentCourseBranch.textContent = `Course & Branch: ${data.course_branch}`;
+                        studentRegisteredCourses.textContent = `No of Courses Registered: ${data.courses_registered}`;
+                        studentDetainedCourses.textContent = `No of Courses Detained: ${data.courses_detained}`;
+
+                        // Populate courses table
+                        data.grades.forEach(course => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `<td class="p-2">${course.course_code}</td><td class="p-2">${course.grade}</td>`;
+                            studentGradesTable.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching student info:', error);
+                    errorMessage.classList.remove('hidden');
+                });
+        }
+
+        function downloadPDF() {
+            alert("PDF download functionality to be implemented.");
         }
     </script>
 </body>
