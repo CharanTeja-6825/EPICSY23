@@ -65,18 +65,33 @@ def homepage(request):
     return render(request, 'adminapp/homepage.html')
 
 
+
+
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import render
+from .models import Student  # Ensure Student model is imported
+
 def studentdetails(request):
-    if request.method == 'POST':
-        query = request.POST.get('query')
-        students = Student.objects.filter(
-            Q(student_id__iexact=query) | Q(name__icontains=query)
-        ).order_by('student_id')
+    query = request.GET.get('query', '')  # Use GET for pagination and search together
+    students = Student.objects.filter(
+        Q(student_id__iexact=query) | Q(name__icontains=query)
+    ) if query else Student.objects.none()
 
-        if not students.exists():
-            return render(request, 'adminapp/StudentDetails.html', {'error': True})
+    if not students.exists():
+        return render(request, 'adminapp/StudentDetails.html', {'error': True})
 
-        paginator = Paginator(students, 10)
-        page_number = request.GET.get('page', 1)
-        page_obj = paginator.get_page(page_number)
-        return render(request, 'adminapp/StudentDetails.html', {'page_obj': page_obj})
-    return render(request, 'adminapp/StudentDetails.html')
+    student = students.first()  # Display only the first matching student
+
+    # Convert student's course_grades (dictionary) into a list of tuples (course, grade)
+    course_list = list(student.course_grades.items())
+
+    paginator = Paginator(course_list, 10)  # Show 10 courses per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'adminapp/StudentDetails.html', {
+        'student': student,
+        'page_obj': page_obj,
+        'query': query  # Pass query to maintain search state
+    })
