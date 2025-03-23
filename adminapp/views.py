@@ -1,22 +1,17 @@
 from django.http import HttpResponse, request
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
-# Create your views here.
-# def homepage(request):
-#     return render(request, 'adminapp/homepage.html')
-#
-# def studentdetails(request):
-#     return render(request, 'adminapp/StudentDetails.html')
-
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.contrib import messages
 from django.db.models import Q
 from django.core.paginator import Paginator
+
+#Final Backend
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
 import csv
 from .models import Student
 
-#Final Backend
+
 def homepage(request):
     if request.method == 'POST':
         csv_file = request.FILES.get('csv_file')
@@ -63,9 +58,12 @@ def homepage(request):
             Student.objects.bulk_create(batch)
 
         messages.success(request, f"Uploaded {Student.objects.count()} students successfully!")
-        return render(request, 'adminapp/homepage.html')
+
+
+        return redirect('studentdetails')
 
     return render(request, 'adminapp/homepage.html')
+
 
 def studentdetails(request):
     if request.method == 'POST':
