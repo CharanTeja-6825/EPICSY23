@@ -11,7 +11,6 @@ from django.contrib import messages
 import csv
 from .models import Student
 
-
 def homepage(request):
     if request.method == 'POST':
         csv_file = request.FILES.get('csv_file')
@@ -24,11 +23,10 @@ def homepage(request):
         decoded_file = csv_file.read().decode('utf-8').splitlines()
         reader = csv.DictReader(decoded_file)
 
-        # Identify dynamic column names
         headers = reader.fieldnames
-        id_column = headers[0]  # Assume first column is the student ID
-        name_column = headers[1]  # Assume second column is the student name
-        course_columns = headers[2:]  # Remaining columns are courses
+        id_column = headers[0]
+        name_column = headers[1]
+        course_columns = headers[2:]
 
         batch = []
         batch_size = 500
@@ -38,15 +36,17 @@ def homepage(request):
             name = row.get(name_column, "").strip()
 
             if not student_id or not name:
-                continue  # Skip empty records
+                continue
 
-            # Store all remaining columns dynamically
+            batch_year = "Y" + student_id[:2]  # Extract batch from ID (e.g., "20" → "Y20")
+
             course_grades = {course: row[course] for course in course_columns if row[course].strip()}
 
             student = Student(
                 student_id=student_id,
                 name=name,
-                course_grades=course_grades
+                course_grades=course_grades,
+                batch=batch_year  # Assign batch
             )
             batch.append(student)
 
@@ -58,11 +58,10 @@ def homepage(request):
             Student.objects.bulk_create(batch)
 
         messages.success(request, f"Uploaded {Student.objects.count()} students successfully!")
-
-
         return redirect('studentdetails')
 
     return render(request, 'adminapp/homepage.html')
+
 
 
 def studentdetails(request):

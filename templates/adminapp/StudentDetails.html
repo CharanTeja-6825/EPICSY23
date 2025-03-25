@@ -13,7 +13,7 @@
         <div class="bg-white p-6 rounded-lg shadow-md">
             <form method="post" class="flex items-center mb-4">
                 {% csrf_token %}
-                <input id="rollNumberInput" name="query" class="border border-gray-300 rounded-l-lg p-2 flex-grow" placeholder="Enter Roll Number or Name" type="text" onkeydown="handleKeyPress(event)"/>
+                <input id="rollNumberInput" name="query" class="border border-gray-300 rounded-l-lg p-2 flex-grow" placeholder="Enter Student Id" type="number" onkeydown="handleKeyPress(event)"/>
                 <button type="submit" class="bg-red-600 text-white p-2 rounded-r-lg">
                     <i class="fas fa-search"></i> Search
                 </button>
@@ -36,6 +36,7 @@
                                 <tr>
                                     <th class="bg-red-600 text-white p-2">Course Code</th>
                                     <th class="bg-red-600 text-white p-2">Grade</th>
+                                    <th class="bg-red-600 text-white p-2">Batch</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -43,6 +44,7 @@
                                     <tr class="{% cycle 'bg-gray-50' 'bg-white' %}">
                                         <td class="p-2">{{ course }}</td>
                                         <td class="p-2">{{ grade }}</td>
+                                        <td class="p-2">{{ student.batch }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
