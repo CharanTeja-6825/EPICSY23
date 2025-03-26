@@ -22,11 +22,11 @@
             <form id="uploadForm" method="post" enctype="multipart/form-data" class="space-y-4">
                 {% csrf_token %}
                 <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-green-50">
-                    <i class="fas fa-cloud-upload-alt text-red-500 text-4xl mb-4"></i>
+                    <i class="fas fa-cloud-upload-alt text-4xl mb-4" style="color:rgb(165, 28, 36);"></i>
                     <p class="mb-2">Drag and drop your CSV file here</p>
                     <p class="mb-2">or</p>
                     <input type="file" id="fileInput" name="csv_file" class="hidden" accept=".csv">
-                    <label for="fileInput" class="bg-red-600 text-white px-4 py-2 rounded cursor-pointer">Browse Files</label>
+                    <label for="fileInput" class="text-white px-4 py-2 rounded cursor-pointer" style="background-color:rgb(165, 28, 36);">Browse Files</label>
                 </div>
                 <p class="text-sm text-gray-500">Accepted file format: .CSV only</p>
                 <div id="uploadStatus" class="mt-4">
@@ -39,7 +39,7 @@
                         {% endfor %}
                     {% endif %}
                 </div>
-                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded w-full mt-4">Upload File</button>
+                <button type="submit" class="text-white px-4 py-2 rounded w-full mt-4" style="background-color:rgb(165, 28, 36);">Upload File</button>
             </form>
         </div>
     </main>
