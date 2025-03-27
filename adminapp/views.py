@@ -87,11 +87,18 @@ def get_or_create_model(batch):
 
     return model
 
+
 def homepage(request):
     if request.method == 'POST':
         csv_file = request.FILES.get('csv_file')
+        batch = request.POST.get('batch', "").strip().upper()  # Get batch from input field
+
         if not csv_file or not csv_file.name.endswith('.csv'):
             messages.error(request, "Please upload a valid CSV file")
+            return render(request, 'adminapp/homepage.html')
+
+        if not batch.startswith("Y") or len(batch) != 3:  # Validate batch format
+            messages.error(request, "Invalid batch format. Use format like Y20, Y21, etc.")
             return render(request, 'adminapp/homepage.html')
 
         # Read CSV file
@@ -103,7 +110,10 @@ def homepage(request):
         name_column = headers[1]  # Second column: student name
         course_columns = headers[2:]  # Remaining columns: courses
 
-        batch_students = {}
+        # Get or create the corresponding batch model
+        StudentModel = get_or_create_model(batch)
+
+        batch_students = []
 
         for row in reader:
             student_id = row.get(id_column, "").strip()
@@ -111,11 +121,6 @@ def homepage(request):
 
             if not student_id or not name:
                 continue
-
-            batch = "Y" + student_id[:2]  # Extract batch from student ID (e.g., "20" → "Y20")
-
-            # Get or create the corresponding batch model
-            StudentModel = get_or_create_model(batch)
 
             # Collect course grades, skipping empty values
             course_grades = {course: row[course].strip() for course in course_columns if row[course].strip()}
@@ -136,17 +141,14 @@ def homepage(request):
                     name=name,
                     course_grades=course_grades
                 )
-                if batch not in batch_students:
-                    batch_students[batch] = []
-                batch_students[batch].append(student)
+                batch_students.append(student)
 
         # Bulk insert new students into respective batch tables
-        for batch, students in batch_students.items():
-            StudentModel = get_or_create_model(batch)
+        if batch_students:
             with transaction.atomic():  # Ensures atomicity
-                StudentModel.objects.bulk_create(students, ignore_conflicts=True)
+                StudentModel.objects.bulk_create(batch_students, ignore_conflicts=True)
 
-        messages.success(request, "Student data uploaded successfully with updates applied.")
+        messages.success(request, f"Student data for {batch} uploaded successfully with updates applied.")
         return redirect('studentdetails')
 
     return render(request, 'adminapp/homepage.html')
