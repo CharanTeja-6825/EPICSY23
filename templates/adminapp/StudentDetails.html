@@ -33,46 +33,51 @@
                     <i class="fas fa-exclamation-circle"></i> Student not found
                 </div>
             {% elif page_obj %}
-                <div id="studentInfo">
-                    {% for student in page_obj %}
-                        <div class="mb-4">
-                            <h2 class="text-lg font-bold">{{ student.name }}</h2>
-                            <p>Registration Number: {{ student.student_id }}</p>
-                            <p>No of Courses Registered: {{ student.course_grades|length }}</p>
-                        </div>
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr>
-                                    <th class="bg-red-600 text-white p-2">Course Code</th>
-                                    <th class="bg-red-600 text-white p-2">Grade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for course, grade in student.course_grades.items %}
-                                    <tr class="{% cycle 'bg-gray-50' 'bg-white' %}">
-                                        <td class="p-2">{{ course }}</td>
-                                        <td class="p-2">{{ grade }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+    <div id="studentInfo">
+        {% for student in page_obj %}
+            <div class="mb-4">
+                <h2 class="text-lg font-bold">{{ student.name }}</h2>
+                <p>Registration Number: {{ student.student_id }}</p>
+                <p>No of Courses Registered: {{ student.course_grades|length }}</p>
+                <p class="text-red-600 font-bold">Number of Courses Failed: {{ student.failed_courses_count }}</p>
+            </div>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="bg-red-600 text-white p-2">Course Code</th>
+                        <th class="bg-red-600 text-white p-2">Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course, grade in student.course_grades.items %}
+                       {% load custom_filters %}
+                        <tr class="{% cycle 'bg-gray-50' 'bg-white' %}">
+                            <td class="p-2">{{ course }}</td>
+                            <td class="p-2 {% if grade|is_failed %}text-red-600 font-bold{% endif %}">
+                                {{ grade }}
+                            </td>
+                        </tr>
                     {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
 
-                    {% if page_obj.paginator.num_pages > 1 %}
-                        <nav class="mt-4">
-                            <ul class="flex justify-center space-x-2">
-                                {% if page_obj.has_previous %}
-                                    <li><a href="?page={{ page_obj.previous_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-left"></i></a></li>
-                                {% endif %}
-                                <li><span class="p-2">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
-                                {% if page_obj.has_next %}
-                                    <li><a href="?page={{ page_obj.next_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-right"></i></a></li>
-                                {% endif %}
-                            </ul>
-                        </nav>
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="mt-4">
+                <ul class="flex justify-center space-x-2">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-left"></i></a></li>
                     {% endif %}
-                </div>
-            {% endif %}
+                    <li><span class="p-2">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-right"></i></a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+{% endif %}
+
         </div>
     </div>
 

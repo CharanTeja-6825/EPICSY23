@@ -3,11 +3,11 @@ from django.shortcuts import render, redirect
 import csv
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Q
+from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.db.models import Q
 
-#Final Backend
-
+FAILED_GRADES = {"GP", "WH", "DT", "F", "NA"}  # Define failing grades
 
 def studentdetails(request):
     if request.method == 'POST':
@@ -30,6 +30,10 @@ def studentdetails(request):
         if not students.exists():
             return render(request, 'adminapp/StudentDetails.html', {'error': True})
 
+        # Process each student to count failed courses
+        for student in students:
+            student.failed_courses_count = sum(1 for grade in student.course_grades.values() if grade in FAILED_GRADES)
+
         paginator = Paginator(students, 10)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
@@ -37,6 +41,7 @@ def studentdetails(request):
         return render(request, 'adminapp/StudentDetails.html', {'page_obj': page_obj, 'batch': batch})
 
     return render(request, 'adminapp/StudentDetails.html')
+
 
 from django.db import models, connection
 from django.apps import apps
