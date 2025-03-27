@@ -28,7 +28,10 @@
                     <input type="file" id="fileInput" name="csv_file" class="hidden" accept=".csv">
                     <label for="fileInput" class="text-white px-4 py-2 rounded cursor-pointer" style="background-color:rgb(165, 28, 36);">Browse Files</label>
                 </div>
-                <p class="text-sm text-gray-500">Accepted file format: .CSV only</p>
+                <p class="text-sm text-gray-500">Accepted file format: .CSV only</p><br>
+                <label for="batch">Enter Batch</label><br>
+                    <input type="text" id="batch" name="batch" required placeholder="(e.g., Y20, Y21)"
+                           style="border:2px solid black; padding:0.5rem; border-radius:5px; width:100%">
                 <div id="uploadStatus" class="mt-4">
                     {% if messages %}
                         {% for message in messages %}

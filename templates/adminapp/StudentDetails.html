@@ -11,75 +11,100 @@
 
     <div class="container mx-auto p-4">
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <form method="post" class="flex items-center mb-4">
+            <form method="post" class="flex flex-col gap-4" onsubmit="return validateForm()">
                 {% csrf_token %}
-                <input id="rollNumberInput" name="query" class="border border-gray-300 rounded-l-lg p-2 flex-grow" placeholder="Enter Student Id" type="number" onkeydown="handleKeyPress(event)"/>
-                <button type="submit" class="text-white p-2 rounded-r-lg" style="background-color:rgb(165, 28, 36);">
-                    <i class="fas fa-search"></i> Search
-                </button>
+
+                <div class="flex items-center">
+                    <input id="rollNumberInput" name="query" class="border border-gray-300 rounded-l-lg p-2 flex-grow" placeholder="Enter Student Id" type="number"
+                        oninput="clearError()" onkeydown="handleKeyPress(event)"/>
+                    <button type="submit" class="text-white p-2 rounded-r-lg" style="background-color:rgb(165, 28, 36);">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <!-- Error Message for Invalid ID Length -->
+                <div id="errorMessage" class="hidden bg-red-100 text-red-600 p-2 rounded mb-4">
+                    <i class="fas fa-exclamation-circle"></i> Invalid ID size. Must be exactly 10 digits.
+                </div>
             </form>
 
             {% if error %}
-                <div id="errorMessage" class="bg-red-100 text-red-600 p-2 rounded mb-4">
+                <div class="bg-red-100 text-red-600 p-2 rounded mb-4">
                     <i class="fas fa-exclamation-circle"></i> Student not found
                 </div>
             {% elif page_obj %}
-                <div id="studentInfo">
-                    {% for student in page_obj %}
-                        <div class="mb-4">
-                            <h2 class="text-lg font-bold">{{ student.name }}</h2>
-                            <p>Registration Number: {{ student.student_id }}</p>
-                            <p>No of Courses Registered: {{ student.course_grades|length }}</p>
-                            <p>Regulation : {{ student.batch }}</p>
-                        </div>
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr>
-                                    <th class="bg-red-600 text-white p-2">Course Code</th>
-                                    <th class="bg-red-600 text-white p-2">Grade</th>
-                                    <!-- <th class="bg-red-600 text-white p-2">Batch</th> -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for course, grade in student.course_grades.items %}
-                                    <tr class="{% cycle 'bg-gray-50' 'bg-white' %}">
-                                        <td class="p-2">{{ course }}</td>
-                                        <td class="p-2">{{ grade }}</td>
-                                        <!-- <td class="p-2">{{ student.batch }}</td> -->
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+    <div id="studentInfo">
+        {% for student in page_obj %}
+            <div class="mb-4">
+                <h2 class="text-lg font-bold">{{ student.name }}</h2>
+                <p>Registration Number: {{ student.student_id }}</p>
+                <p>No of Courses Registered: {{ student.course_grades|length }}</p>
+                <p class="text-red-600 font-bold">Number of Courses Failed: {{ student.failed_courses_count }}</p>
+            </div>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th class="bg-red-600 text-white p-2">Course Code</th>
+                        <th class="bg-red-600 text-white p-2">Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course, grade in student.course_grades.items %}
+                       {% load custom_filters %}
+                        <tr class="{% cycle 'bg-gray-50' 'bg-white' %}">
+                            <td class="p-2">{{ course }}</td>
+                            <td class="p-2 {% if grade|is_failed %}text-red-600 font-bold{% endif %}">
+                                {{ grade }}
+                            </td>
+                        </tr>
                     {% endfor %}
-                    <!-- Pagination -->
-                    {% if page_obj.paginator.num_pages > 1 %}
-                        <nav class="mt-4">
-                            <ul class="flex justify-center space-x-2">
-                                {% if page_obj.has_previous %}
-                                    <li><a href="?page={{ page_obj.previous_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-left"></i></a></li>
-                                {% endif %}
-                                <li><span class="p-2">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
-                                {% if page_obj.has_next %}
-                                    <li><a href="?page={{ page_obj.next_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-right"></i></a></li>
-                                {% endif %}
-                            </ul>
-                        </nav>
+                </tbody>
+            </table>
+        {% endfor %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <nav class="mt-4">
+                <ul class="flex justify-center space-x-2">
+                    {% if page_obj.has_previous %}
+                        <li><a href="?page={{ page_obj.previous_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-left"></i></a></li>
                     {% endif %}
-<!--                    <div class="mt-4 text-right">-->
-<!--                        <button class="bg-white border border-red-600 text-red-600 p-2 rounded-lg flex items-center">-->
-<!--                            <i class="fas fa-download mr-2"></i> Download PDF-->
-<!--                        </button>-->
-<!--                    </div>-->
-                </div>
-            {% endif %}
+                    <li><span class="p-2">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li><a href="?page={{ page_obj.next_page_number }}" class="bg-red-600 text-white p-2 rounded"><i class="fas fa-arrow-right"></i></a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    </div>
+{% endif %}
+
         </div>
     </div>
 
     <script>
+        function validateForm() {
+            const rollNumberInput = document.getElementById("rollNumberInput");
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (rollNumberInput.value.length !== 10) {
+                errorMessage.classList.remove("hidden");
+                return false;  // Prevent form submission
+            }
+
+            return true;  // Allow form submission
+        }
+
         function handleKeyPress(event) {
             if (event.key === "Enter") {
-                event.target.form.submit();
+                event.preventDefault();
+                if (validateForm()) {
+                    event.target.form.submit();
+                }
             }
+        }
+
+        function clearError() {
+            document.getElementById("errorMessage").classList.add("hidden");
         }
     </script>
 </body>
