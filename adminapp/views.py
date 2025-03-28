@@ -157,3 +157,49 @@ def homepage(request):
         return redirect('studentdetails')
 
     return render(request, 'adminapp/homepage.html')
+import csv
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.contrib import messages
+
+FAILED_GRADES = {"GP", "WH", "DT", "F", "NA"}  # Define failing grades
+
+def generate_backlog_report(request):
+    if request.method == 'POST':
+        batch = request.POST.get('batch', "").strip().upper()
+
+        if not batch.startswith("Y") or len(batch) != 3:  # Validate batch format
+            messages.error(request, "Invalid batch format. Use format like Y20, Y21, etc.")
+            return render(request, 'adminapp/backlog_report.html')
+
+        # Get the correct model for the batch
+        StudentModel = get_or_create_model(batch)
+
+        # Fetch students with failed courses
+        students = StudentModel.objects.all()
+
+        # Prepare data for CSV
+        backlog_data = []
+
+        for student in students:
+            for course, grade in student.course_grades.items():
+                if grade in FAILED_GRADES:
+                    backlog_data.append([student.student_id, course, grade])
+
+        if not backlog_data:
+            messages.warning(request, "No students with backlogs found.")
+            return render(request, 'adminapp/backlog_report.html')
+
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename=backlog_report_{batch}.csv'
+
+        writer = csv.writer(response)
+        writer.writerow(["Student ID", "Failed Course Code", "Grade"])
+
+        for row in backlog_data:
+            writer.writerow(row)
+
+        return response
+
+    return render(request, 'adminapp/BacklogReport.html')
