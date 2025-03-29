@@ -1,11 +1,13 @@
-from django.http import HttpResponse, request
-from django.shortcuts import render, redirect
-import csv
-from django.contrib import messages
+from django.shortcuts import redirect
 from django.db import transaction
-from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.db import models, connection
+from django.apps import apps
+import csv
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.contrib import messages
 
 FAILED_GRADES = {"GP", "WH", "DT", "F", "NA"}  # Define failing grades
 
@@ -43,8 +45,7 @@ def studentdetails(request):
     return render(request, 'adminapp/StudentDetails.html')
 
 
-from django.db import models, connection
-from django.apps import apps
+
 
 def create_batch_table(batch):
     """Creates a table for the given batch if it does not exist."""
@@ -157,12 +158,7 @@ def homepage(request):
         return redirect('studentdetails')
 
     return render(request, 'adminapp/homepage.html')
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.contrib import messages
 
-FAILED_GRADES = {"GP", "WH", "DT", "F", "NA"}  # Define failing grades
 
 def generate_backlog_report(request):
     if request.method == 'POST':
@@ -170,7 +166,7 @@ def generate_backlog_report(request):
 
         if not batch.startswith("Y") or len(batch) != 3:  # Validate batch format
             messages.error(request, "Invalid batch format. Use format like Y20, Y21, etc.")
-            return render(request, 'adminapp/backlog_report.html')
+            return render(request, 'adminapp/BacklogReport.html')
 
         # Get the correct model for the batch
         StudentModel = get_or_create_model(batch)
@@ -188,7 +184,7 @@ def generate_backlog_report(request):
 
         if not backlog_data:
             messages.warning(request, "No students with backlogs found.")
-            return render(request, 'adminapp/backlog_report.html')
+            return render(request, 'adminapp/BacklogReport.html')
 
         # Create CSV response
         response = HttpResponse(content_type='text/csv')
