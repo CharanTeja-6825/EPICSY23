@@ -3,9 +3,11 @@
    <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between py-4 px-6">
     <div class="flex items-center mb-4 sm:mb-0">
      <div class="text-white px-4 py-2 rounded">
-      <span class="font-bold">
-       KL University
-      </span>
+      <div style="display:flex; gap:1rem;">
+          <a href="{% url 'homepage' %}" style="font-weight : 700; font-size:large; margin-right:1rem;">KL University</a>
+          <a href="{% url 'studentdetails' %}">Students Report</a>
+          <a href="{% url 'download_backlog' %}">Backlog Report</a>
+      </div>
      </div>
     </div>
     <div class="w-full sm:w-auto text-center">

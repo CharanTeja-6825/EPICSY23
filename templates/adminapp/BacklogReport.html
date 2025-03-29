@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlog Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+    {% include 'navbar/AdminNavbar.html' %}
+
+    <main class="flex-grow flex flex-col items-center justify-center px-4 w-full">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Generate Backlog Report</h2>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <label for="batch" class="block font-medium">Enter Batch</label>
+                <input type="text" id="batch" name="batch" required placeholder="(e.g., Y20, Y21)"
+                       class="border-2 border-gray-300 p-2 rounded-lg w-full focus:ring focus:ring-red-300">
+
+                <div id="uploadStatus" class="mt-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="bg-{{ message.tags }}-100 text-{{ message.tags }}-700 px-4 py-2 rounded mb-2 flex items-center">
+                                <i class="fas fa-{% if message.tags == 'success' %}check{% else %}exclamation{% endif %}-circle mr-2"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="text-white px-4 py-2 rounded w-full mt-4" style="background-color:rgb(165, 28, 36);">
+                    Generate Report
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="w-full bg-white py-4">
+        <div class="container mx-auto text-center text-gray-500 text-sm">
+            © 2025 KL University. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>
