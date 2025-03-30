@@ -76,20 +76,27 @@ def create_batch_model(batch):
     model_name = f"Student{batch}"
     return type(model_name, (models.Model,), attrs)
 
+
 def get_or_create_model(batch):
-    """Retrieve an existing batch model or create a new one dynamically."""
+    """Retrieve an existing batch model or create a new one dynamically, avoiding duplicate registration."""
     model_name = f"Student{batch}"
 
-    if model_name in apps.all_models['adminapp']:
+    # Check if the model is already registered
+    try:
         return apps.get_model('adminapp', model_name)
+    except LookupError:
+        pass  # Model does not exist, proceed to create
 
-    # Create table if it does not exist
+    # Ensure the table exists in the database
     create_batch_table(batch)
 
-    # Create and register the model
+    # Create and register the model dynamically
     model = create_batch_model(batch)
-    apps.all_models['adminapp'][model_name.lower()] = model
-    apps.register_model('adminapp', model)
+
+    # Avoid duplicate registration
+    if model_name.lower() not in apps.all_models['adminapp']:
+        apps.all_models['adminapp'][model_name.lower()] = model
+        apps.register_model('adminapp', model)
 
     return model
 
