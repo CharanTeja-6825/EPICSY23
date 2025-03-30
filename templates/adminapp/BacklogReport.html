@@ -15,9 +15,12 @@
             <h2 class="text-xl font-semibold mb-4">Generate Backlog Report</h2>
             <form method="post" class="space-y-4">
                 {% csrf_token %}
-                <label for="batch" class="block font-medium">Enter Batch</label>
-                <input type="text" id="batch" name="batch" required placeholder="(e.g., Y20, Y21)"
-                       class="border-2 border-gray-300 p-2 rounded-lg w-full focus:ring focus:ring-red-300">
+                <select id="batch" name="batch" required class="border-2 border-gray-300 p-2 rounded-lg w-full focus:ring focus:ring-red-300">
+                    <option value="" disabled selected>Select a batch</option>
+                    {% for batch in batches %}
+                        <option value="{{ batch }}">{{ batch }}</option>
+                    {% endfor %}
+                </select>
 
                 <div id="uploadStatus" class="mt-4">
                     {% if messages %}

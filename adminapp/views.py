@@ -160,23 +160,31 @@ def homepage(request):
     return render(request, 'adminapp/homepage.html')
 
 
+def get_available_batches():
+    # Fetch all batch tables with data
+    available_batches = []
+    for batch_year in range(20, 26):  # Example: Y20 to Y25
+        batch_name = f"Y{batch_year}"
+        StudentModel = get_or_create_model(batch_name)
+        if StudentModel.objects.exists():  # Check if the table has data
+            available_batches.append(batch_name)
+    return available_batches
+
+
 def generate_backlog_report(request):
+    available_batches = get_available_batches()
+
     if request.method == 'POST':
-        batch = request.POST.get('batch', "").strip().upper()
+        batch = request.POST.get('batch')
 
-        if not batch.startswith("Y") or len(batch) != 3:  # Validate batch format
-            messages.error(request, "Invalid batch format. Use format like Y20, Y21, etc.")
-            return render(request, 'adminapp/BacklogReport.html')
+        if batch not in available_batches:
+            messages.error(request, "Invalid batch selection.")
+            return render(request, 'adminapp/BacklogReport.html', {'batches': available_batches})
 
-        # Get the correct model for the batch
         StudentModel = get_or_create_model(batch)
-
-        # Fetch students with failed courses
         students = StudentModel.objects.all()
 
-        # Prepare data for CSV
         backlog_data = []
-
         for student in students:
             for course, grade in student.course_grades.items():
                 if grade in FAILED_GRADES:
@@ -184,18 +192,16 @@ def generate_backlog_report(request):
 
         if not backlog_data:
             messages.warning(request, "No students with backlogs found.")
-            return render(request, 'adminapp/BacklogReport.html')
+            return render(request, 'adminapp/BacklogReport.html', {'batches': available_batches})
 
-        # Create CSV response
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename=backlog_report_{batch}.csv'
 
         writer = csv.writer(response)
         writer.writerow(["Student ID", "Failed Course Code", "Grade"])
-
         for row in backlog_data:
             writer.writerow(row)
 
         return response
 
-    return render(request, 'adminapp/BacklogReport.html')
+    return render(request, 'adminapp/BacklogReport.html', {'batches': available_batches})
