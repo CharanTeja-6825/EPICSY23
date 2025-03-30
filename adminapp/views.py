@@ -32,9 +32,13 @@ def studentdetails(request):
         if not students.exists():
             return render(request, 'adminapp/StudentDetails.html', {'error': True})
 
-        # Process each student to count failed courses
+        # Process each student to count and store failed courses
         for student in students:
-            student.failed_courses_count = sum(1 for grade in student.course_grades.values() if grade in FAILED_GRADES)
+            failed_courses = [
+                (course, grade) for course, grade in student.course_grades.items() if grade in FAILED_GRADES
+            ]
+            student.failed_courses = failed_courses  # Store failed course details
+            student.failed_courses_count = len(failed_courses)
 
         paginator = Paginator(students, 10)
         page_number = request.GET.get('page', 1)
@@ -43,8 +47,6 @@ def studentdetails(request):
         return render(request, 'adminapp/StudentDetails.html', {'page_obj': page_obj, 'batch': batch})
 
     return render(request, 'adminapp/StudentDetails.html')
-
-
 
 
 def create_batch_table(batch):

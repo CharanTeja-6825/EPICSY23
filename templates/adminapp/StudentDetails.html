@@ -42,15 +42,16 @@
                 <p class="text-red-600 font-bold">Number of Courses Failed: {{ student.failed_courses_count }}</p>
 
                 {% if student.failed_courses %}
-                    <div class="mt-2 p-2 bg-red-50 border border-red-500 rounded">
-                    <h3 class="text-red-600 font-semibold">Failed Courses:</h3>
-                    <ul class="list-disc list-inside">
-                        {% for course, grade in student.failed_courses %}
-                            <li class="text-red-700 font-medium">{{ course }} - {{ grade }}</li>
-                        {% endfor %}
-                    </ul>
-            </div>
-        {% endif %}
+    <div class="mt-2 p-2 bg-red-50 border border-red-500 rounded">
+        <h3 class="text-red-600 font-semibold">Failed Courses:</h3>
+        <ul class="list-disc list-inside">
+            {% for course, grade in student.failed_courses %}
+                <li class="text-red-700 font-medium">{{ course }} - {{ grade }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
             </div>
             <table class="w-full text-left border-collapse">
                 <thead>
