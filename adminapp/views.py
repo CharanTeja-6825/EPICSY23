@@ -12,41 +12,51 @@ from django.contrib import messages
 FAILED_GRADES = {"GP", "WH", "DT", "F", "NA"}  # Define failing grades
 
 def studentdetails(request):
+    available_batches = get_available_batches()  # <- Include this
+
     if request.method == 'POST':
         query = request.POST.get('query', "").strip()
 
         if not query:
-            return render(request, 'adminapp/StudentDetails.html', {'error': True})
+            return render(request, 'adminapp/StudentDetails.html', {
+                'error': True,
+                'batches': available_batches  # <- Include this
+            })
 
-        batch_prefix = query[:2]  # Extract batch year from student ID (e.g., "20" from "200123")
-        batch = f"Y{batch_prefix}"  # Convert to batch format (e.g., "Y20")
-
-        # Dynamically get the batch-specific student model
+        batch_prefix = query[:2]
+        batch = f"Y{batch_prefix}"
         StudentModel = get_or_create_model(batch)
 
-        # Fetch students matching the query in the selected batch
         students = StudentModel.objects.filter(
             Q(student_id__iexact=query) | Q(name__icontains=query)
         ).order_by('student_id')
 
         if not students.exists():
-            return render(request, 'adminapp/StudentDetails.html', {'error': True})
+            return render(request, 'adminapp/StudentDetails.html', {
+                'error': True,
+                'batches': available_batches  # <- Include this
+            })
 
-        # Process each student to count and store failed courses
         for student in students:
             failed_courses = [
                 (course, grade) for course, grade in student.course_grades.items() if grade in FAILED_GRADES
             ]
-            student.failed_courses = failed_courses  # Store failed course details
+            student.failed_courses = failed_courses
             student.failed_courses_count = len(failed_courses)
 
         paginator = Paginator(students, 10)
         page_number = request.GET.get('page', 1)
         page_obj = paginator.get_page(page_number)
 
-        return render(request, 'adminapp/StudentDetails.html', {'page_obj': page_obj, 'batch': batch})
+        return render(request, 'adminapp/StudentDetails.html', {
+            'page_obj': page_obj,
+            'batch': batch,
+            'batches': available_batches  # <- Include this
+        })
 
-    return render(request, 'adminapp/StudentDetails.html')
+    return render(request, 'adminapp/StudentDetails.html', {
+        'batches': available_batches  # <- Include this
+    })
 
 
 def create_batch_table(batch):
