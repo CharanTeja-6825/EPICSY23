@@ -51,6 +51,7 @@ def studentdetails(request):
         return render(request, 'adminapp/StudentDetails.html', {
             'page_obj': page_obj,
             'batch': batch,
+            'selected_batch': request.POST.get('batchDropdown', ''),
             'batches': available_batches  # <- Include this
         })
 
